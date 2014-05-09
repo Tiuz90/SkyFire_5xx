@@ -57,7 +57,7 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
     SendTaxiStatus(guid);
 }
 
-void WorldSession::SendTaxiStatus(uint64 guid)
+void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
     // cheating checks
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
@@ -76,8 +76,24 @@ void WorldSession::SendTaxiStatus(uint64 guid)
     TC_LOG_DEBUG("network", "WORLD: current location %u ", curloc);
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
-    data << guid;
-    data << uint8(GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 0);
+    data.WriteBit(guid[0]);
+	data.WriteBit(guid[7]);
+    data.WriteBits(uint8(GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 0), 2);
+	data.WriteBit(guid[2]);
+	data.WriteBit(guid[3]);
+	data.WriteBit(guid[6]);
+	data.WriteBit(guid[5]);
+	data.WriteBit(guid[4]);
+	data.WriteBit(guid[1]);
+
+	data.WriteByteSeq(guid[3]);
+	data.WriteByteSeq(guid[2]);
+	data.WriteByteSeq(guid[6]);
+	data.WriteByteSeq(guid[4]);
+	data.WriteByteSeq(guid[7]);
+	data.WriteByteSeq(guid[1]);
+	data.WriteByteSeq(guid[0]);
+	data.WriteByteSeq(guid[5]);
     SendPacket(&data);
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXINODE_STATUS");
 }

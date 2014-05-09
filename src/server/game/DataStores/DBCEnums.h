@@ -327,16 +327,16 @@ enum Difficulty
 {
     REGULAR_DIFFICULTY           = 0,
 
-    DUNGEON_DIFFICULTY_NORMAL    = 0,
-    DUNGEON_DIFFICULTY_HEROIC    = 1,
-    DUNGEON_DIFFICULTY_CHALLENGE = 2,
+    DUNGEON_DIFFICULTY_NORMAL    = 1,
+    DUNGEON_DIFFICULTY_HEROIC    = 2,
+    DUNGEON_DIFFICULTY_CHALLENGE = 8,
 
-    RAID_DIFFICULTY_10MAN_NORMAL = 0,
-    RAID_DIFFICULTY_25MAN_NORMAL = 1,
-    RAID_DIFFICULTY_10MAN_HEROIC = 2,
-    RAID_DIFFICULTY_25MAN_HEROIC = 3,
-    RAID_DIFFICULTY_10MAN_FLEX   = 4,
-    RAID_DIFFICULTY_25MAN_LFR    = 5,
+    RAID_DIFFICULTY_10MAN_NORMAL = 3,
+    RAID_DIFFICULTY_25MAN_NORMAL = 4,
+    RAID_DIFFICULTY_10MAN_HEROIC = 5,
+    RAID_DIFFICULTY_25MAN_HEROIC = 6,
+    RAID_DIFFICULTY_10MAN_FLEX   = 7,
+    RAID_DIFFICULTY_25MAN_LFR    = 9,
 
     SCENARIO_DIFFICULTY_NORMAL   = 0,
     SCENARIO_DIFFICULTY_HEROIC   = 1
@@ -344,10 +344,10 @@ enum Difficulty
 
 #define RAID_DIFFICULTY_MASK_25MAN 1    // since 25man difficulties are 1 and 3, we can check them like that
 
-#define MAX_DUNGEON_DIFFICULTY     3
-#define MAX_RAID_DIFFICULTY        6
+#define MAX_DUNGEON_DIFFICULTY     8
+#define MAX_RAID_DIFFICULTY        10
 #define MAX_SCENARIO_DIFFICULTY    2
-#define MAX_DIFFICULTY             4 // temp hack Should be 6 but need to finish the DB side.
+#define MAX_DIFFICULTY             10 // temp hack Should be 6 but need to finish the DB side.
 
 enum SpawnMask
 {

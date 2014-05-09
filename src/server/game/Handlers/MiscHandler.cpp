@@ -631,22 +631,26 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
         recvData >> newPvPStatus;
         GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
         GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
+		TC_LOG_INFO("server.worldserver","Flag pvp cambiata");
     }
     else
     {
         GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
         GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+		TC_LOG_INFO("server.worldserver","Flag pvp cambiata");
     }
 
     if (GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
         if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
             GetPlayer()->UpdatePvP(true, true);
+		TC_LOG_INFO("server.worldserver","Flag pvp cambiata");
     }
     else
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.EndTimer = time(NULL);     // start toggle-off
+		TC_LOG_INFO("server.worldserver","Flag pvp cambiata");
     }
 
     //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
@@ -1767,6 +1771,11 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
     uint32 mode;
     recvData >> mode;
 
+	bool set;
+	set = false;
+
+	TC_LOG_INFO("server.worldserver","mode: %d", mode);
+
     if (mode >= MAX_DUNGEON_DIFFICULTY)
     {
         TC_LOG_DEBUG("network", "WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUIDLow(), mode);
@@ -1810,13 +1819,19 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
             //_player->SendDungeonDifficulty(true);
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
             group->SetDungeonDifficulty(Difficulty(mode));
+			set = true;
         }
     }
     else
     {
         _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false);
         _player->SetDungeonDifficulty(Difficulty(mode));
+		set = true;
     }
+
+	WorldPacket data(MSG_SET_DUNGEON_DIFFICULTY, 1);
+	data << set;
+	SendPacket(&data);
 }
 
 void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
@@ -1825,6 +1840,11 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
 
     uint32 mode;
     recvData >> mode;
+
+	bool set;
+	set = false;
+
+	TC_LOG_INFO("server.worldserver","mode: %d", mode);
 
     if (mode >= MAX_RAID_DIFFICULTY)
     {
@@ -1867,13 +1887,52 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
             //_player->SendDungeonDifficulty(true);
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
             group->SetRaidDifficulty(Difficulty(mode));
+			set = true;
         }
     }
     else
     {
         _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true);
         _player->SetRaidDifficulty(Difficulty(mode));
+		set = true;
     }
+
+	WorldPacket data(MSG_SET_RAID_DIFFICULTY, 1);
+	data << set;
+	SendPacket(&data);
+}
+
+void WorldSession::HandleCmsgSetRaidDifficultyOpcode(WorldPacket& recvData) {
+
+	
+
+	uint32 unk0, unk1;
+	recvData >> unk0 >> unk1;
+
+	TC_LOG_INFO("server.worldserver","Il primo numero è %d e il secondo è %d", unk0, unk1);
+
+	ObjectGuid pGuid = _player->GetGUID();
+
+
+
+	pGuid[6] = recvData.ReadBit();
+	pGuid[2] = recvData.ReadBit();
+	pGuid[0] = recvData.ReadBit();
+	pGuid[7] = recvData.ReadBit();
+	pGuid[5] = recvData.ReadBit();
+	pGuid[3] = recvData.ReadBit();
+	pGuid[1] = recvData.ReadBit();
+	pGuid[4] = recvData.ReadBit();
+
+	recvData.ReadByteSeq(pGuid[6]);
+	recvData.ReadByteSeq(pGuid[0]);
+	recvData.ReadByteSeq(pGuid[5]);
+	recvData.ReadByteSeq(pGuid[1]);
+	recvData.ReadByteSeq(pGuid[7]);
+	recvData.ReadByteSeq(pGuid[4]);
+	recvData.ReadByteSeq(pGuid[2]);
+	recvData.ReadByteSeq(pGuid[3]);
+
 }
 
 void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)

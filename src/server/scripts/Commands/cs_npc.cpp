@@ -457,8 +457,20 @@ public:
         if (!*args)
             return false;
 
-        uint8 lvl = (uint8) atoi((char*)args);
-        if (lvl < 1 || lvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
+        char* lvlmin1 = strtok((char*)args, " ");
+		char* lvlmax1 = strtok((char*)NULL, " ");
+
+		if (!lvlmin1 || !lvlmax1)
+            return false;
+
+        uint32 lvlmin = (uint32)atoi(lvlmin1);
+        uint32 lvlmax = (uint32)atoi(lvlmax1);
+
+		handler->PSendSysMessage("%d", lvlmin);
+		handler->PSendSysMessage("%d", lvlmax);
+
+
+        if (lvlmin < 1 || lvlmax > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3 || lvlmin > lvlmax)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -473,22 +485,34 @@ public:
             return false;
         }
 
+		
+	
         if (creature->IsPet())
         {
             if (((Pet*)creature)->getPetType() == HUNTER_PET)
             {
-                creature->SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, sObjectMgr->GetXPForLevel(lvl)/4);
+                creature->SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, sObjectMgr->GetXPForLevel(lvlmin)/4);
                 creature->SetUInt32Value(UNIT_FIELD_PET_EXPERIENCE, 0);
             }
-            ((Pet*)creature)->GivePetLevel(lvl);
+            ((Pet*)creature)->GivePetLevel(lvlmin);
         }
-        else
-        {
-            creature->SetMaxHealth(100 + 30*lvl);
-            creature->SetHealth(100 + 30*lvl);
-            creature->SetLevel(lvl);
-            creature->SaveToDB();
-        }
+		else {
+		char  milvl[10];
+		char  malvl[10];
+		char  entry[20];
+		char  query[200];
+		strcpy(query, "UPDATE creature_template SET minlevel = ");
+		sprintf(milvl,"%d", lvlmin);
+		strcat(query, milvl);
+		strcat(query, ", maxlevel = ");
+		sprintf(malvl,"%d", lvlmax);
+		strcat(query, malvl);
+		strcat(query, " WHERE entry = ");
+		sprintf(entry,"%d", creature->GetEntry());
+		strcat(query, entry);
+		handler->PSendSysMessage("%s", query);
+		WorldDatabase.Execute(query);
+		}
 
         return true;
     }
@@ -575,11 +599,25 @@ public:
         if (!*args)
             return false;
 
-        uint32 factionId = (uint32) atoi((char*)args);
+        char* factionId_a1 = strtok((char*)args, " ");
+		char* factionId_h2 = strtok((char*)NULL, " ");
 
-        if (!sFactionTemplateStore.LookupEntry(factionId))
+		if (!factionId_a1 || !factionId_h2)
+            return false;
+
+        uint32 factionId_a = (uint32)atoi(factionId_a1);
+        uint32 factionId_h = (uint32)atoi(factionId_h2);
+
+        if (!sFactionTemplateStore.LookupEntry(factionId_a))
         {
-            handler->PSendSysMessage(LANG_WRONG_FACTION, factionId);
+            handler->PSendSysMessage(LANG_WRONG_FACTION, factionId_a);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+		if (!sFactionTemplateStore.LookupEntry(factionId_h))
+        {
+            handler->PSendSysMessage(LANG_WRONG_FACTION, factionId_h);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -593,25 +631,31 @@ public:
             return false;
         }
 
-        creature->setFaction(factionId);
-
         // Faction is set in creature_template - not inside creature
 
         // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
         {
-            const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
-            const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
+            const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId_a;
+            const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId_h;
         }
 
         // ..and DB
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
-
-        stmt->setUInt16(0, uint16(factionId));
-        stmt->setUInt16(1, uint16(factionId));
-        stmt->setUInt32(2, creature->GetEntry());
-
-        WorldDatabase.Execute(stmt);
+        char  facA[10];
+		char  facH[10];
+		char  entry[20];
+		char  query[200];
+		strcpy(query, "UPDATE creature_template SET faction_A = ");
+		sprintf(facA,"%d", factionId_a);
+		strcat(query, facA);
+		strcat(query, ", faction_H = ");
+		sprintf(facH,"%d", factionId_h);
+		strcat(query, facH);
+		strcat(query, " WHERE entry = ");
+		sprintf(entry,"%d", creature->GetEntry());
+		strcat(query, entry);
+		handler->PSendSysMessage("%s", query);
+		WorldDatabase.Execute(query);
 
         return true;
     }

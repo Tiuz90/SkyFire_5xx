@@ -343,7 +343,7 @@ class WorldSession
         void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
-        void SendTaxiStatus(uint64 guid);
+        void SendTaxiStatus(ObjectGuid guid);
         void SendTaxiMenu(Creature* unit);
         void SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode = 0);
         bool SendLearnNewTaxiNode(Creature* unit);
@@ -801,6 +801,7 @@ class WorldSession
         void HandleFarSightOpcode(WorldPacket& recvData);
         void HandleSetDungeonDifficultyOpcode(WorldPacket& recvData);
         void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
+		void HandleCmsgSetRaidDifficultyOpcode(WorldPacket& recvData);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);

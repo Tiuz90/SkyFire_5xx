@@ -354,7 +354,7 @@ void WorldSession::SendLfgPlayerLockInfo()
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgPartyLockInfo()
+void WorldSession::SendLfgPartyLockInfo()  // 0x1661 sub_7196A2    0x099B sub_7021D8
 {
     uint64 guid = GetPlayer()->GetGUID();
     Group* group = GetPlayer()->GetGroup();
