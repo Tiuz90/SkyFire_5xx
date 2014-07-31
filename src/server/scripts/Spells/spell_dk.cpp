@@ -75,6 +75,8 @@ class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
 
             uint32 absorbPct;
 
+			
+
             bool Load() OVERRIDE
             {
                 absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
@@ -90,7 +92,7 @@ class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-            }
+			}
 
             void Register() OVERRIDE
             {
