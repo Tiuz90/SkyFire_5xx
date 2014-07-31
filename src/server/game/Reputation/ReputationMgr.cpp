@@ -154,14 +154,16 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
 
 void ReputationMgr::SendForceReactions()
 {
-    WorldPacket data;
-    data.Initialize(SMSG_SET_FORCED_REACTIONS, 4+_forcedReactions.size()*(4+4));
-    data << uint32(_forcedReactions.size());
+    WorldPacket data(SMSG_SET_FORCED_REACTIONS, 1 + _forcedReactions.size() * (4 + 4));
+    data.WriteBits(_forcedReactions.size(), 6);
+    data.FlushBits();
+
     for (ForcedReactions::const_iterator itr = _forcedReactions.begin(); itr != _forcedReactions.end(); ++itr)
     {
         data << uint32(itr->first);                         // faction_id (Faction.dbc)
         data << uint32(itr->second);                        // reputation rank
     }
+
     _player->SendDirectMessage(&data);
 }
 
@@ -169,13 +171,14 @@ void ReputationMgr::SendState(FactionState const* faction)
 {
     uint32 count = 1;
 
-    WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
-    data << float(0);
-    data << uint8(_sendFactionIncreased);
-    _sendFactionIncreased = false; // Reset
+    WorldPacket data(SMSG_SET_FACTION_STANDING, 4 + 4 + 3 + 4 + 4);
+    size_t countPos = data.bitwpos();
 
-    size_t p_count = data.wpos();
-    data << uint32(count);
+    data.WriteBit(_sendFactionIncreased);
+    data.WriteBits(count, 21);
+    data.FlushBits();
+
+    _sendFactionIncreased = false; // Reset
 
     data << uint32(faction->ReputationListID);
     data << uint32(faction->Standing);
@@ -187,14 +190,18 @@ void ReputationMgr::SendState(FactionState const* faction)
             itr->second.needSend = false;
             if (itr->second.ReputationListID != faction->ReputationListID)
             {
-                data << uint32(itr->second.ReputationListID);
                 data << uint32(itr->second.Standing);
+                data << uint32(itr->second.ReputationListID);
                 ++count;
             }
         }
     }
 
-    data.put<uint32>(p_count, count);
+    // RaF data
+    data << float(0);
+    data << float(0);
+
+    data.PutBits(countPos, count, 21);
     _player->SendDirectMessage(&data);
 }
 
@@ -236,6 +243,7 @@ void ReputationMgr::SendInitialReputations()
         bitData.WriteBit(0);
     }
 
+    bitData.FlushBits();
     data.append(bitData);
 
     _player->SendDirectMessage(&data);

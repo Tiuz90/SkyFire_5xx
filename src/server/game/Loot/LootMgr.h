@@ -25,6 +25,7 @@
 #include "RefManager.h"
 #include "SharedDefines.h"
 #include "ConditionMgr.h"
+#include "Object.h"
 
 #include <map>
 #include <vector>
@@ -157,8 +158,8 @@ struct LootItem
     const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
 
     // Write packet data
-    void WriteBitDataPart(uint8 slotType, ByteBuffer* buff);
-    void WriteBasicDataPart(uint8 slot, ByteBuffer* buff);
+    void WriteBitDataPart(uint8 permission, bool hasSlotType, ByteBuffer* buff);
+    void WriteBasicDataPart(uint8 slotType, uint8 slot, ByteBuffer* buff);
 };
 
 struct QuestItem

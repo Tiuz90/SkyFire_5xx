@@ -567,13 +567,13 @@ struct QuestPOI
     int32 ObjectiveIndex;
     uint32 MapId;
     uint32 AreaId;
-    uint32 Unk2;
+    uint32 FloorId;
     uint32 Unk3;
     uint32 Unk4;
     std::vector<QuestPOIPoint> points;
 
-    QuestPOI() : Id(0), ObjectiveIndex(0), MapId(0), AreaId(0), Unk2(0), Unk3(0), Unk4(0) { }
-    QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 unk2, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), Unk2(unk2), Unk3(unk3), Unk4(unk4) { }
+    QuestPOI() : Id(0), ObjectiveIndex(0), MapId(0), AreaId(0), FloorId(0), Unk3(0), Unk4(0) { }
+    QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 floorId, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), FloorId(floorId), Unk3(unk3), Unk4(unk4) { }
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;
@@ -979,6 +979,13 @@ class ObjectMgr
         PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
         SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
 
+        void LoadBattlePetBreedData();
+        void LoadBattlePetQualityData();
+
+        uint64 BattlePetGetNewId();
+        uint8 BattlePetGetRandomBreed(uint32 speciesId) const;
+        uint8 BattlePetGetRandomQuality(uint32 speciesId) const;
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1285,6 +1292,8 @@ class ObjectMgr
         uint32 _hiAreaTriggerGuid;
         uint32 _hiMoTransGuid;
 
+        uint32 m_battlePetId;
+
         QuestMap _questTemplates;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
@@ -1338,6 +1347,14 @@ class ObjectMgr
 
         PhaseDefinitionStore _PhaseDefinitionStore;
         SpellPhaseStore _SpellPhaseStore;
+
+        typedef std::set<uint8> BattleBetBreedSet;
+        typedef UNORDERED_MAP<uint16, BattleBetBreedSet> BattlePetBreedXSpeciesMap;
+        typedef std::set<uint8> BattlePetQualitySet;
+        typedef UNORDERED_MAP<uint16, BattlePetQualitySet> BattlePetQualityXSpeciesMap;
+
+        BattlePetBreedXSpeciesMap sBattlePetBreedXSpeciesStore;
+        BattlePetQualityXSpeciesMap sBattlePetQualityXSpeciesStore;
 
     private:
         void LoadScripts(ScriptsType type);

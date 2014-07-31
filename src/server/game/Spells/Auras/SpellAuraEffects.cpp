@@ -94,7 +94,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModIncreaseMountedSpeed,               // 32 SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED
     &AuraEffect::HandleAuraModDecreaseSpeed,                      // 33 SPELL_AURA_MOD_DECREASE_SPEED
     &AuraEffect::HandleAuraModIncreaseHealth,                     // 34 SPELL_AURA_MOD_INCREASE_HEALTH
-    &AuraEffect::HandleAuraModIncreaseEnergy,                     // 35 SPELL_AURA_MOD_INCREASE_ENERGY
+    &AuraEffect::HandleAuraModIncreaseMaxPowerFlat,               // 35 SPELL_AURA_MOD_INCREASE_MAX_POWER_FLAT
     &AuraEffect::HandleAuraModShapeshift,                         // 36 SPELL_AURA_MOD_SHAPESHIFT
     &AuraEffect::HandleAuraModEffectImmunity,                     // 37 SPELL_AURA_EFFECT_IMMUNITY
     &AuraEffect::HandleAuraModStateImmunity,                      // 38 SPELL_AURA_STATE_IMMUNITY
@@ -481,7 +481,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417 (used in spell 25956) (5.4.2)
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_418
     &AuraEffect::HandleNULL,                                      //419 SPELL_AURA_419
-    &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
+    &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_MOD_PET_XP_PCT / NYI
     &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_421
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422 (used in spell 136577) (5.4.2)
     &AuraEffect::HandleNULL,                                      //423 SPELL_AURA_423 (used in spell 108294) (5.4.2)
@@ -1734,6 +1734,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     {
         case FORM_CAT:                                      // 0x01
         case FORM_GHOUL:                                    // 0x07
+
+        case FORM_STURDY_OX:                                // 0x17
+        case FORM_FIERCE_TIGER:                             // 0x18
             PowerType = POWER_ENERGY;
             break;
 
@@ -3949,7 +3952,7 @@ void AuraEffect::HandleAuraModIncreaseMaxHealth(AuraApplication const* aurApp, u
     }
 }
 
-void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModIncreaseMaxPowerFlat(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
